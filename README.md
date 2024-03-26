@@ -1,25 +1,11 @@
-# 📦 Streamlit App Starter Kit 
-```
-⬆️ (Replace above with your app's name)
-```
+# ask me again
 
-Description of the app ...
+an open source chatbot project, a playground and testing space
 
-## Demo App
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://app-starter-kit.streamlit.app/)
-
-## GitHub Codespaces
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/streamlit/app-starter-kit?quickstart=1)
 
 ## Section Heading
 
-This is filler text, please replace this with text for this section.
+i made a good few scripts locally and have loaded some of them, edited them, replaced them, frankensteined them together, updated them, etc;  depending on when you are looking, you may find things behaving strangely, or a bit broken
 
-## Further Reading
 
-This is filler text, please replace this with a explanatory text about further relevant resources for this repo
-- Resource 1
-- Resource 2
-- Resource 3

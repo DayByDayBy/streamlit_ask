@@ -1,52 +1,51 @@
 import streamlit as st
-from streamlit_chat import message
-from streamlit_extras.colored_header import colored_header
-from streamlit_extras.add_vertical_space import add_vertical_space
 from hugchat import hugchat
+from hugchat.login import Login
 
-st.set_page_config(page_title="talking to myself - an open source LLM app")
 
+st.set_page_config(page_title="talk to yourself")
+
+# H-Face Credentials
 with st.sidebar:
-    st.title('ask_again')
-    add_vertical_space(5)
-    st.markdown('''
-   an LLM-powered chatbot, built using [streamlit](<https://streamlit.io/>) and [hugchat](<https://github.com/Soulter/hugging-chat-api>)
-    ''')
-    add_vertical_space(15)
-    st.write('thrown together by [Бог](<https://www.boag.dev>)')
+    st.title('talking2yourself')
+    if ('EMAIL' in st.secrets) and ('PASS' in st.secrets):
+        st.success('HuggingFace Login credentials already provided!', icon='✅')
+        hf_email = st.secrets['EMAIL']
+        hf_pass = st.secrets['PASS']
+    else:
+        hf_email = st.text_input('Enter e-mail:', type='password')
+        hf_pass = st.text_input('Enter password:', type='password')
+        if not (hf_email and hf_pass):
+            st.warning('log in with hugging-face account', icon='⚠️')
+        else:
+            st.success('prompt me, bro', icon='👉')
     
-if 'generated' not in st.session_state:
-    st.session_state['generated'] = ["I'm HugChat, How may I help you?"]
+if "messages" not in st.session_state.keys():
+    st.session_state.messages = [{"role": "assistant", "content": "log in and then ask me whatever you want"}]
 
-if 'past' not in st.session_state:
-    st.session_state['past'] = ['Hi!']
-        
-input_container = st.container()
-colored_header(label='', description='', color_name='blue-30')
-response_container = st.container()
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.write(message["content"])
 
+def generate_response(prompt_input, email, passwd):
+    # H-Face Login
+    sign = Login(email, passwd)
+    cookies = sign.login()
+    # new chatbot spawn                        
+    chatbot = hugchat.ChatBot(cookies=cookies.get_dict())
+    return chatbot.chat(prompt_input)
 
+if prompt := st.chat_input(disabled=not (hf_email and hf_pass)):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.write(prompt)
 
+# generate response if last message not from assistant
 
-def get_text():
-    input_text = st.text_input("You: ", "", key="input")
-    return input_text
-with input_container:
-    user_input = get_text()
-    
-def generate_response(prompt):
-    chatbot = hugchat.ChatBot()
-    response = chatbot.chat(prompt)
-    return response
-
-
-with response_container:
-    if user_input:
-        response = generate_response(user_input)
-        st.session_state.past.append(user_input)
-        st.session_state.generated.append(response)
-        
-    if st.session_state['generated']:
-        for i in range(len(st.session_state['generated'])):
-            message(st.session_state['past'][i], is_user=True, key=str(i) + '_user')
-            message(st.session_state['generated'][i], key=str(i))
+if st.session_state.messages[-1]["role"] != "assistant":
+    with st.chat_message("assistant"):
+        with st.spinner("Thinking..."):
+            response = generate_response(prompt, hf_email, hf_pass) 
+            st.write(response) 
+    message = {"role": "assistant", "content": response}
+    st.session_state.messages.append(message)
